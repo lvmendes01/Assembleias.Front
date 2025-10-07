@@ -21,11 +21,14 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth' // importa a store
 import api from '../services/api'
 
 export default defineComponent({
   setup() {
     const router = useRouter()
+    const auth = useAuthStore()
+
     const email = ref('')
     const senha = ref('')
     const loading = ref(false)
@@ -34,14 +37,25 @@ export default defineComponent({
     const handleLogin = async () => {
       erro.value = ''
       loading.value = true
+
       try {
-        const res = await api.post('/auth/login', { email: email.value, senha: senha.value })
+        const res = await api.post('/auth/login', {
+          email: email.value,
+          senha: senha.value
+        })
+
         const { token, usuario } = res.data
 
-        // Salva token e usuário no localStorage
+        // Atualiza store
+        auth.token = token
+        auth.usuario = usuario
+        auth.erro = ''
+        auth.loading = false
+
+        // Persiste manualmente também (opcional)
         localStorage.setItem('auth.token', token)
         localStorage.setItem('auth.usuario', JSON.stringify(usuario))
-localStorage.setItem('auth.papel', usuario.papel)
+        localStorage.setItem('auth.papel', usuario.papel)
 
         // Redireciona conforme papel
         const redirectMap: Record<string, string> = {
@@ -51,6 +65,7 @@ localStorage.setItem('auth.papel', usuario.papel)
         router.push(redirectMap[usuario.papel] || '/login')
       } catch (err: any) {
         erro.value = err.response?.data?.message || 'Erro ao tentar logar. Tente novamente.'
+        auth.erro = erro.value
       } finally {
         loading.value = false
       }

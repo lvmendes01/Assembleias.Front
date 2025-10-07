@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import api from '../services/api'
+import axios from 'axios'
 
 interface Usuario {
   id: string
@@ -10,29 +10,35 @@ interface Usuario {
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    token: '' as string,
+    token: '',
     usuario: null as Usuario | null,
     loading: false,
     erro: ''
   }),
   actions: {
-    async login(email: string, senha: string) {
-      this.loading = true
-      this.erro = ''
-      try {
-        const { data } = await api.post('/auth/login', { email, senha })
-        this.token = data.token
-        this.usuario = data.usuario
-      } catch (err: any) {
-        console.error(err)
-        this.erro = 'E-mail ou senha incorretos.'
-      } finally {
-        this.loading = false
-      }
+    login(usuario: Usuario, token: string) {
+      this.usuario = usuario
+      this.token = token
+      localStorage.setItem('auth.token', token)
+      localStorage.setItem('auth.usuario', JSON.stringify(usuario))
     },
     logout() {
-      this.token = ''
       this.usuario = null
+      this.token = ''
+      localStorage.removeItem('auth.token')
+      localStorage.removeItem('auth.usuario')
+    },
+    async fetchUsuario() {
+      if (!this.token) return
+      try {
+        const { data } = await axios.get('/api/usuario', {
+          headers: { Authorization: `Bearer ${this.token}` }
+        })
+        this.usuario = data
+      } catch (err) {
+        console.error('Erro ao carregar usuário', err)
+        this.logout()
+      }
     }
   },
   persist: true

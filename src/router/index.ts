@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
+
 import Login from '../views/LoginView.vue'
 import InicioAdminView from '../views/InicioAdminView.vue'
 import CrudAssembleias from '../views/AssembleiasView.vue'
@@ -9,7 +11,6 @@ import Usuario from '../views/UsuarioView.vue'
 import Unidade from '../views/UnidadeView.vue'
 import Aviso from '../views/AvisosView.vue'
 
-// Definição das rotas
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', component: Login },
@@ -20,7 +21,7 @@ const routes = [
   { path: '/votos', component: Votacao, meta: { requiresAuth: true, roles: ['usuario', 'admin'] } },
   { path: '/usuarios', component: Usuario, meta: { requiresAuth: true, roles: ['admin'] } },
   { path: '/unidades', component: Unidade, meta: { requiresAuth: true, roles: ['admin'] } },
-   { path: '/avisos', component: Aviso, meta: { requiresAuth: true, roles: ['usuario', 'admin'] } },
+  { path: '/avisos', component: Aviso, meta: { requiresAuth: true, roles: ['usuario', 'admin'] } },
 ]
 
 const router = createRouter({
@@ -28,27 +29,28 @@ const router = createRouter({
   routes
 })
 
-// Middleware de autenticação
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('auth.token')
-  const papel = localStorage.getItem('auth.papel') // 'admin' ou 'usuario'
-
-  // Rotas que exigem autenticação
-  if (to.meta.requiresAuth) {
-    if (!token) return next('/login')
-    if (to.meta.roles && !to.meta.roles.includes(papel)) {
-      // Usuário sem permissão para acessar a rota
-      return next('/login')
-    }
+router.beforeEach(async (to, from, next) => {
+  const auth = useAuthStore()
+  // Se houver token mas usuário não carregado, buscar no backend
+  if (auth.token && !auth.usuario) {
+    await auth.fetchUsuario()
   }
 
-  // Se já estiver logado, redireciona o usuário para a rota adequada
+  const usuario = auth.usuario
+  const token = auth.token
+  const papel = usuario?.papel
+
+  if (to.meta.requiresAuth) {
+    if (!token) return next('/login')
+    if (to.meta.roles && !to.meta.roles.includes(papel!)) return next('/login')
+  }
+
   if (to.path === '/login' && token) {
     const redirectMap: Record<string, string> = {
       admin: '/assembleias',
       usuario: '/enquetes'
     }
-    return next(redirectMap[papel] || '/login')
+    return next(redirectMap[papel!] || '/login')
   }
 
   next()
