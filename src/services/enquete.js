@@ -24,6 +24,11 @@ export default {
   return response.data;
 },
   
+// NOVO: Buscar enquetes por assembleia
+  getByAssembleia: async (assembleiaId) => {
+    const response = await api.get(`/enquete/${assembleiaId}/enquetes`)
+    return response.data
+  },
 
   update: async (id, enquete) => {
     const response = await api.put(`/enquete/${id}`, enquete)
