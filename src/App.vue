@@ -22,7 +22,7 @@
           <li v-if="isAdmin" class="nav-item">
             <router-link class="nav-link" to="/condominios">Condomínios</router-link>
           </li>
-          <li class="nav-item">
+          <li  v-if="isAdmin" class="nav-item">
             <router-link class="nav-link" to="/enquetes">Enquetes</router-link>
           </li>
           <li v-if="isAdmin" class="nav-item">
@@ -31,7 +31,7 @@
           <li v-if="isAdmin" class="nav-item">
             <router-link class="nav-link" to="/unidades">Unidades</router-link>
           </li>
-          <li class="nav-item">
+          <li  v-if="isAdmin" class="nav-item">
             <router-link class="nav-link" to="/votos">Votos</router-link>
           </li>
           <li class="nav-item">
@@ -40,18 +40,21 @@
         </ul>
       </div>
 
-      <!-- Dropdown do usuário -->
+      <!-- Dropdown do usuário controlado pelo Vue -->
       <div class="ms-auto d-flex align-items-center" v-if="usuario">
-        <div class="dropdown">
+        <div class="position-relative">
           <button
-            class="btn btn-outline-primary d-flex align-items-center dropdown-toggle"
-            type="button"
-            data-bs-toggle="dropdown"
+            class="btn btn-outline-primary d-flex align-items-center"
+            @click="dropdownOpen = !dropdownOpen"
           >
             <i class="bi bi-person-circle me-2"></i>
             {{ usuario.nome }}
+            <i class="bi bi-caret-down-fill ms-1"></i>
           </button>
-          <ul class="dropdown-menu dropdown-menu-end shadow-sm p-2">
+          <ul
+            v-show="dropdownOpen"
+            class="dropdown-menu dropdown-menu-end shadow-sm p-2 show position-absolute end-0 mt-1"
+          >
             <li class="dropdown-item-text fw-semibold">{{ usuario.nome }}</li>
             <li class="dropdown-item-text text-muted">{{ usuario.email }}</li>
             <li><hr class="dropdown-divider" /></li>
@@ -71,7 +74,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
+import { defineComponent, ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../src/stores/auth'
 
@@ -85,12 +88,14 @@ export default defineComponent({
     const isAdmin = computed(() => usuario.value?.papel === 'admin')
     const showNavbar = computed(() => route.path !== '/login')
 
+    const dropdownOpen = ref(false)
+
     const logout = () => {
       auth.logout()
       router.push('/login')
     }
 
-    return { usuario, isAdmin, showNavbar, logout }
+    return { usuario, isAdmin, showNavbar, dropdownOpen, logout }
   }
 })
 </script>
@@ -108,10 +113,6 @@ export default defineComponent({
 .nav-link:hover {
   color: #0d6efd;
   text-decoration: none;
-}
-
-.dropdown-toggle::after {
-  display: none;
 }
 
 .dropdown-menu {

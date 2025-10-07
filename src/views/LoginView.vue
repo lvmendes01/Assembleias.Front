@@ -21,13 +21,13 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth' // importa a store
+import { useAuthStore } from '../stores/auth' // Pinia store
 import api from '../services/api'
 
 export default defineComponent({
   setup() {
     const router = useRouter()
-    const auth = useAuthStore()
+    const auth = useAuthStore() // acessa a store
 
     const email = ref('')
     const senha = ref('')
@@ -46,26 +46,17 @@ export default defineComponent({
 
         const { token, usuario } = res.data
 
-        // Atualiza store
-        auth.token = token
-        auth.usuario = usuario
-        auth.erro = ''
-        auth.loading = false
-
-        // Persiste manualmente também (opcional)
-        localStorage.setItem('auth.token', token)
-        localStorage.setItem('auth.usuario', JSON.stringify(usuario))
-        localStorage.setItem('auth.papel', usuario.papel)
+        // Atualiza store (persistida automaticamente)
+        auth.login(usuario, token)
 
         // Redireciona conforme papel
         const redirectMap: Record<string, string> = {
           admin: '/assembleias',
-          usuario: '/votos'
+      Condômino: '/avisos'
         }
         router.push(redirectMap[usuario.papel] || '/login')
       } catch (err: any) {
         erro.value = err.response?.data?.message || 'Erro ao tentar logar. Tente novamente.'
-        auth.erro = erro.value
       } finally {
         loading.value = false
       }
