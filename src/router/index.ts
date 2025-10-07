@@ -7,6 +7,7 @@ import Enquetes from '../views/EnqueteView.vue'
 import Votacao from '../views/VotacaoView.vue'
 import Usuario from '../views/UsuarioView.vue'
 import Unidade from '../views/UnidadeView.vue'
+import Aviso from '../views/AvisosView.vue'
 
 // Definição das rotas
 const routes = [
@@ -18,7 +19,8 @@ const routes = [
   { path: '/enquetes', component: Enquetes, meta: { requiresAuth: true, roles: ['usuario', 'admin'] } },
   { path: '/votos', component: Votacao, meta: { requiresAuth: true, roles: ['usuario', 'admin'] } },
   { path: '/usuarios', component: Usuario, meta: { requiresAuth: true, roles: ['admin'] } },
-  { path: '/unidades', component: Unidade, meta: { requiresAuth: true, roles: ['admin'] } }
+  { path: '/unidades', component: Unidade, meta: { requiresAuth: true, roles: ['admin'] } },
+   { path: '/avisos', component: Aviso, meta: { requiresAuth: true, roles: ['usuario', 'admin'] } },
 ]
 
 const router = createRouter({

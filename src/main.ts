@@ -8,6 +8,7 @@ const app = createApp(App)
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js' // JS do Bootstrap (opcional, necessário para dropdowns e navbar)
+import 'bootstrap-icons/font/bootstrap-icons.css'
 
 
 // Pinia
