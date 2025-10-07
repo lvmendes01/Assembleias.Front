@@ -147,8 +147,8 @@
 </template>
 
 <script>
-import unidadeApi from '../api/unidade';
-import condominioApi from '../api/condominio';
+import unidadeApi from '../services/unidade';
+import condominioApi from '../services/condominio';
 import * as bootstrap from 'bootstrap';
 
 export default {

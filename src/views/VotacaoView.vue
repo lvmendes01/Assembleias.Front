@@ -78,8 +78,8 @@
 </template>
 
 <script>
-import votoApi from '../api/voto';
-import enqueteApi from '../api/enquete';
+import votoApi from '../services/voto';
+import enqueteApi from '../services/enquete';
 import * as bootstrap from 'bootstrap';
 
 export default {

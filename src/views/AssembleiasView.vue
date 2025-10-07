@@ -220,8 +220,8 @@
 </template>
 
 <script>
-import assembleiaApi from '../api/assembleia';
-import condominioApi from '../api/condominio';
+import assembleiaApi from '../services/assembleia';
+import condominioApi from '../services/condominio';
 import * as bootstrap from 'bootstrap';
 
 export default {

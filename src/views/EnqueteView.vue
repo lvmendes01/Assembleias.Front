@@ -146,8 +146,8 @@
 </template>
 
 <script>
-import enqueteApi from '../api/enquete';
-import assembleiaApi from '../api/assembleia';
+import enqueteApi from '../services/enquete';
+import assembleiaApi from '../services/assembleia';
 import * as bootstrap from 'bootstrap';
 import { v4 as uuidv4 } from 'uuid';
 

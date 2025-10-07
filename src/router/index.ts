@@ -1,43 +1,55 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import CrudAssembleias from '../views/AssembleiasView.vue';
-import CrudCondominios from '../views/CondominioView.vue';
-import Enquetes from '../views/EnqueteView.vue';
-import Votacao from '../views/VotacaoView.vue';
-import Usuario from '../views/UsuarioView.vue';
-import Unidade from '../views/UnidadeView.vue';
-import Login from '../views/LoginView.vue';
+import { createRouter, createWebHistory } from 'vue-router'
+import Login from '../views/LoginView.vue'
+import InicioAdminView from '../views/InicioAdminView.vue'
+import CrudAssembleias from '../views/AssembleiasView.vue'
+import CrudCondominios from '../views/CondominioView.vue'
+import Enquetes from '../views/EnqueteView.vue'
+import Votacao from '../views/VotacaoView.vue'
+import Usuario from '../views/UsuarioView.vue'
+import Unidade from '../views/UnidadeView.vue'
 
+// Definição das rotas
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', component: Login },
-  { path: '/assembleias', component: CrudAssembleias, meta: { requiresAuth: true } },
-  { path: '/condominios', component: CrudCondominios, meta: { requiresAuth: true } },
-  { path: '/enquetes', component: Enquetes, meta: { requiresAuth: true } },
-  { path: '/votos', component: Votacao, meta: { requiresAuth: true } },
-  { path: '/usuarios', component: Usuario, meta: { requiresAuth: true } },
-  { path: '/unidades', component: Unidade, meta: { requiresAuth: true } }
-];
+  { path: '/adm', component: InicioAdminView },
+  { path: '/assembleias', component: CrudAssembleias, meta: { requiresAuth: true, roles: ['admin'] } },
+  { path: '/condominios', component: CrudCondominios, meta: { requiresAuth: true, roles: ['admin'] } },
+  { path: '/enquetes', component: Enquetes, meta: { requiresAuth: true, roles: ['usuario', 'admin'] } },
+  { path: '/votos', component: Votacao, meta: { requiresAuth: true, roles: ['usuario', 'admin'] } },
+  { path: '/usuarios', component: Usuario, meta: { requiresAuth: true, roles: ['admin'] } },
+  { path: '/unidades', component: Unidade, meta: { requiresAuth: true, roles: ['admin'] } }
+]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes,
-});
+  routes
+})
 
 // Middleware de autenticação
 router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('auth.token')
+  const papel = localStorage.getItem('auth.papel') // 'admin' ou 'usuario'
 
-  // Se a rota exigir autenticação e não houver token, vai para login
-  if (to.meta.requiresAuth && !token) {
-    next('/login');
+  // Rotas que exigem autenticação
+  if (to.meta.requiresAuth) {
+    if (!token) return next('/login')
+    if (to.meta.roles && !to.meta.roles.includes(papel)) {
+      // Usuário sem permissão para acessar a rota
+      return next('/login')
+    }
   }
-  // Se tentar ir pro login mas já estiver logado, vai pra assembleias
-  else if (to.path === '/login' && token) {
-    next('/assembleias');
-  }
-  else {
-    next();
-  }
-});
 
-export default router;
+  // Se já estiver logado, redireciona o usuário para a rota adequada
+  if (to.path === '/login' && token) {
+    const redirectMap: Record<string, string> = {
+      admin: '/assembleias',
+      usuario: '/enquetes'
+    }
+    return next(redirectMap[papel] || '/login')
+  }
+
+  next()
+})
+
+export default router

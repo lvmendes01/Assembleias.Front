@@ -203,9 +203,9 @@
 </template>
 
 <script>
-import usuarioApi from '../api/usuario';
-import condominioApi from '../api/condominio';
-import unidadeApi from '../api/unidade';
+import usuarioApi from '../services/usuario';
+import condominioApi from '../services/condominio';
+import unidadeApi from '../services/unidade';
 import * as bootstrap from 'bootstrap';
 
 export default {

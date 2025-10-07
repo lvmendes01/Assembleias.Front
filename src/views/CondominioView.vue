@@ -133,7 +133,7 @@
 </template>
 
 <script>
-import condominioApi from '../api/condominio';
+import condominioApi from '../services/condominio';
 import * as bootstrap from 'bootstrap';
 
 export default {
